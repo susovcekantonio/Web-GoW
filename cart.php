@@ -148,6 +148,30 @@ if (isset($_POST['update_quantity']) && isset($_POST['product_id'])) {
             }
         }
     </style>
+    
+    <script>
+    function updateQuantity(productId, newQuantity) {
+        // Create an AJAX request
+        const xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                // Update the total price and any other relevant UI elements
+                const response = JSON.parse(xhr.responseText);
+                const updatedTotalPrice = response.updatedTotalPrice;
+                document.querySelector('.total-price').textContent = `Total Price: $${updatedTotalPrice}`;
+            }
+        };
+
+        // Send the AJAX request
+        xhr.open('POST', 'update_quantity.php', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.send(`product_id=${productId}&quantity=${newQuantity}`);
+        
+        // Trigger form submission
+        const form = document.getElementById(`quantity-form-${productId}`);
+        form.submit();
+    }
+</script>
 </head>
 <body>
     <header>
@@ -166,11 +190,12 @@ if (isset($_POST['update_quantity']) && isset($_POST['product_id'])) {
                     <p>Subtotal: $<?php echo $subtotals[$productId]; ?></p>
                 </div>
                 <div class="cart-item-actions">
-                    <form action="cart.php" method="post">
-                        <input type="hidden" name="product_id" value="<?php echo $productId; ?>">
-                        <input type="number" name="quantity" value="<?php echo $quantity; ?>">
-                        <input type="submit" name="update_quantity" value="Update">
-                    </form>
+                <form id="quantity-form-<?php echo $productId; ?>" class="cart-quantity-form">
+    <input type="hidden" name="product_id" value="<?php echo $productId; ?>">
+    <input type="number" id="quantity-input-<?php echo $productId; ?>" name="quantity" value="<?php echo $quantity; ?>" oninput="updateQuantity(<?php echo $productId; ?>, this.value)">
+    <!-- Hidden submit button -->
+    <input type="submit" style="display: none;">
+</form>
                     <a href="cart.php?remove=true&id=<?php echo $productId; ?>" class="remove-button">Remove</a>
                 </div>
             </div>

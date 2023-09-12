@@ -116,6 +116,42 @@ foreach ($_SESSION['cart'] as $productId => $quantity) {
                 return false;
             }
         }
+
+     
+    document.addEventListener('DOMContentLoaded', function () {
+        const orderForm = document.getElementById('order-form');
+        orderForm.addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent the form from submitting traditionally
+
+            // Collect form data into a JavaScript object
+            const formData = {
+                name: document.getElementById('name').value,
+                surname: document.getElementById('surname').value,
+                email: document.getElementById('email').value,
+                address: document.getElementById('address').value,
+                card: document.getElementById('card').value,
+                cartItems: <?php echo json_encode($_SESSION['cart']); ?> // Serialize the cart data as JSON
+            };
+
+            // Send the data to the server using AJAX
+            fetch('place_order.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Handle the server's response (e.g., show a success message)
+                console.log(data);
+                // You can redirect the user or display a success message here
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    });
     </script>
 </head>
 <body>
